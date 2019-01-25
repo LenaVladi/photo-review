@@ -1,6 +1,7 @@
 const mainInterface = document.querySelector('.menu');
 const menuItem = mainInterface.querySelectorAll('.menu__item');
 const image = document.querySelector('.current-image');
+const imageWrap = document.querySelector('.current-image-wrap');
 const app = document.querySelector('.app');
 const loader = document.querySelector('.image-loader');
 const error = document.querySelector('.error');
@@ -9,6 +10,7 @@ const mode = document.querySelectorAll('.menu__item.mode');
 const commentForm = document.querySelector('.comments__form');
 let socket;
 let commentForms;
+let canvas, ctx;
 
 // показ / скрытие элементов
 
@@ -70,6 +72,10 @@ mode.forEach(item => {
   item.addEventListener('click', event => {
     if (item.classList.contains('new')) return;
     showMenu(item.classList[item.classList.length - 1]);
+
+    if (item.classList.contains('draw')) {
+      draw();
+    }
   });
 });
 
@@ -101,7 +107,7 @@ function onDrop() {
   event.preventDefault();
   if (!checkImage) {
     errorMessage.textContent = 'Чтобы загрузить новое изображение, пожалуйста, воспользуйтесь пунктом «Загрузить новое» в меню';
-    showElement(error)
+    showElement(error);
     return;
   } else {
     const files = event.dataTransfer.files[0];
@@ -183,3 +189,73 @@ window.addEventListener('load', function () {
     image.src = sessionStorage.getItem('UploadImage');
   }
 });
+
+// ================================================= //
+
+// const BRUSH_RADIUS = 4;
+// let drawing = false;
+// let color = "#6cbe47";
+//
+// function getColor(el) {
+//   switch (el) {
+//     case "red":
+//       ctx.fillStyle = "#ea5d56";
+//       break;
+//     case "yellow":
+//       ctx.fillStyle = "#f3d135";
+//       break;
+//     case "green":
+//       ctx.fillStyle = "#6cbe47";
+//       break;
+//     case "blue":
+//       ctx.fillStyle = "#53a7f5";
+//       break;
+//     case "purple":
+//       ctx.fillStyle = "#b36ade";
+//       break;
+//   }
+// }
+//
+// for (colors of menuColor) {
+//   colors.addEventListener("click", (e) => {
+//     getColor(e.target.value);
+//   });
+// }
+//
+// function makePoint(x, y) {
+//   return [x, y];
+// };
+//
+// canvas.addEventListener('mousdown', function (evt) {
+//   drawing = true;
+//   ctx.beginPath();
+// }
+// canvas.addEventListener('mousup', function (evt) {
+//   drawing = false;
+// }
+//
+// canvas.addEventListener('mousmove', function (evt) {
+//   if (drawing) {
+//     ctx.lineWidth = BRUSH_RADIUS * 2;
+//     ctx.lineTo(evt.offsetX, evt.offsetY);
+//     ctx.stroke();
+//
+//     ctx.beginPath();
+//     ctx.arc(evt.offsetX, evt.offsetY, BRUSH_RADIUS / 2, 0, 2 * Math.PI);
+//     ctx.fill();
+//
+//     ctx.beginPath();
+//     ctx.moveTo(evt.offsetX, evt.offsetY);
+//   }
+// })
+//
+// document.addEventListener('keydown', function (evt) {
+//   if (evt.keyCode === 90 && evt.keyCode === 91) {
+//
+//   }
+// })
+
+
+
+
+

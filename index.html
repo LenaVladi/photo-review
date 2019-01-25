@@ -11,16 +11,16 @@
 <div class="wrap app" data-state="initial">
   <ul class="menu">
     <li class="menu__item drag"></li>
-    
+
     <li class="menu__item burger">
       <i class="burger-icon"></i>
     </li>
-    
+
     <li class="menu__item mode new">
       <i class="menu__icon new-icon"></i>
       <span class="menu__item-title">Загрузить<br>новое</span>
     </li>
-    
+
     <li class="menu__item mode comments" data-state="">
       <i class="menu__icon comments-icon"></i>
       <span class="menu__item-title">Комментарии</span>
@@ -32,7 +32,7 @@
             <span class="menu__toggle-bttn"></span>
           </span>
     </li>
-    
+
     <li class="menu__item mode draw" data-state="">
       <i class="menu__icon draw-icon"></i>
       <span class="menu__item-title">Рисовать</span>
@@ -44,7 +44,7 @@
       <input class="menu__color blue" type="radio" name="color" value="blue"><span></span>
       <input class="menu__color purple" type="radio" name="color" value="purple"><span></span>
     </li>
-    
+
     <li class="menu__item mode share" data-state="">
       <i class="menu__icon share-icon"></i>
       <span class="menu__item-title">Поделиться</span>
@@ -61,7 +61,7 @@
     <h4 class="error__header">Ошибка</h4>
     <p class="error__message">Неверный формат файла. Пожалуйста, выберите изображение в формате .jpg или .png.</p>
   </div>
-  
+
   <div class="image-loader" style="display: none;">
     <div class="loader">
       <span></span>
@@ -72,7 +72,7 @@
     </div>
     <p class="image-loader__message">Загружаю изображение...</p>
   </div>
-  
+
   <form class="comments__form">
     <span class="comments__marker"></span><input type="checkbox" class="comments__marker-checkbox">
     <div class="comments__body">
@@ -103,6 +103,7 @@
     </div>
   </form>
   <script src="js/script.js"></script>
+  <script src="js/drawing.js"></script>
   <script src="js/dragndrop-menu.js"></script>
 </div>
 </body>

@@ -1,12 +1,8 @@
 const BRUSH_RADIUS = 4;
 
-let nodeCanvas;
-let ctx;
-
 let curves = [];
 let drawing = false;
 let needsRepaint = false;
-let color = "#6cbe47";
 
 // curves and figures
 function circle(point) {
@@ -22,39 +18,44 @@ function smoothCurveBetween(p1, p2) {
 }
 
 // установка цвета линии по клику на выбранный цвет
+function getColor(el) {
+  switch (el) {
+    case "red":
+      ctx.fillStyle = "#ea5d56";
+      ctx.strokeStyle = "#ea5d56";
+      break;
+    case "yellow":
+      ctx.fillStyle = "#f3d135";
+      ctx.strokeStyle = "#f3d135";
+      break;
+    case "green":
+      ctx.fillStyle = "#6cbe47";
+      ctx.strokeStyle = "#6cbe47";
+      break;
+    case "blue":
+      ctx.fillStyle = "#53a7f5";
+      ctx.strokeStyle = "#53a7f5";
+      break;
+    case "purple":
+      ctx.fillStyle = "#b36ade";
+      ctx.strokeStyle = "#b36ade";
+      break;
+  }
+}
 
+let menuColor = mainInterface.querySelectorAll('.draw-tools input');
 
 for (colors of menuColor) {
   colors.addEventListener("click", (e) => {
-    ctx.closePath();
-    switch (e.target.value) {
-      case "red":
-        color = "#ea5d56";
-        break;
-      case "yellow":
-        color = "#f3d135";
-        break;
-      case "green":
-        color = "#6cbe47";
-        break;
-      case "blue":
-        color = "#53a7f5";
-        break;
-      case "purple":
-        color = "#b36ade";
-        break;
-    }
+    getColor(e.target.value);
   });
 }
 
-
-
-function smoothCurve(points, fill = color) {
+function smoothCurve(points) {
   ctx.beginPath();
   ctx.lineWidth = BRUSH_RADIUS;
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
-  ctx.strokeStyle = fill;
 
   ctx.moveTo(...points[0]);
 
@@ -63,18 +64,24 @@ function smoothCurve(points, fill = color) {
   }
 
   ctx.stroke();
-  ctx.closePath();
 }
 
 function makePoint(x, y) {
   return [x, y];
 };
 
-modeDraw.addEventListener("click", () => {
-  nodeCanvas = wrapApp.querySelector(".canvas");
-  ctx = nodeCanvas.getContext("2d");
+function draw() {
+  canvas = document.createElement('canvas');
+  ctx = canvas.getContext('2d');
+  canvas.width = image.width;
+  canvas.height = image.height;
+  imageWrap.appendChild(canvas);
 
-  nodeCanvas.addEventListener("mousedown", (evt) => {
+  // default color
+  ctx.fillStyle = "#6cbe47";
+  ctx.strokeStyle = "#6cbe47";
+
+  canvas.addEventListener("mousedown", (evt) => {
     drawing = true;
     undone = []; // reset the undone stack
 
@@ -85,15 +92,17 @@ modeDraw.addEventListener("click", () => {
     needsRepaint = true;
   });
 
-  nodeCanvas.addEventListener("mouseup", (evt) => {
+  canvas.addEventListener("mouseup", (evt) => {
     drawing = false;
+    ctx.beginPath();
   });
 
-  nodeCanvas.addEventListener("mouseleave", (evt) => {
+  canvas.addEventListener("mouseleave", (evt) => {
     drawing = false;
+    ctx.beginPath();
   });
 
-  nodeCanvas.addEventListener("mousemove", (evt) => {
+  canvas.addEventListener("mousemove", (evt) => {
     if (drawing) {
       // add a point
       const point = makePoint(evt.offsetX, evt.offsetY)
@@ -101,12 +110,21 @@ modeDraw.addEventListener("click", () => {
       needsRepaint = true;
     }
   });
-});
+}
+
+// cancel action last drawing
+document.addEventListener('keydown', function (evt) {
+  if (evt.ctrlKey && evt.keyCode === 90) {
+    curves.pop();
+    repaint();
+  }
+})
+
 
 // rendering
 function repaint() {
   // clear before repainting
-  ctx.clearRect(0, 0, wrapApp.width, wrapApp.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   curves
     .forEach((curve) => {
