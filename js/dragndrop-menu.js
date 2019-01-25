@@ -1,6 +1,6 @@
 'use strict';
 
-// ------------------ Drag&drop menu --------------- //
+// ------------------ Drag&drop mainInterface --------------- //
 const drag = document.querySelector('.drag');
 
 let mouseOffset = {
@@ -9,15 +9,15 @@ let mouseOffset = {
 };
 
 let isMouseDown = false;
-let maxX = wrapApp.offsetLeft,
-    maxY = wrapApp.offsetTop; // границы экрана
+let maxX = app.offsetLeft, // границы экрана
+    maxY = app.offsetTop; // границы экрана
 let minX, minY;
 let shiftX, shiftY; // смещение
 
 /**
  * Начало drag&drop
- * @param {event} принимает событие из которого вычисляет координаты елемента
- * @param {obj} elem - сам элемент, в данном случае елемент "меню"
+ * @param {event}  событие из которого вычисляет координаты елемента
+ * @param {elem}  в данном случае елемент "меню"
  */
 
 function dragStart(event, elem) {
@@ -26,14 +26,14 @@ function dragStart(event, elem) {
   shiftX = event.pageX - elem.offsetLeft - window.pageXOffset;
   shiftY = event.pageY - elem.offsetTop - window.pageYOffset;
 
-  minX = maxX + wrapApp.offsetWidth - elem.offsetWidth;
-  minY = maxY + wrapApp.offsetHeight - elem.offsetHeight;
+  minX = maxX + app.offsetWidth - elem.offsetWidth;
+  minY = maxY + app.offsetHeight - elem.offsetHeight;
 }
 
 /**
  * Движение drag&drop
- * @param {event} принимает событие из которого вычисляет координаты елемента и мышки
- * @param {obj} elem - сам элемент, в данном случае елемент "меню"
+ * @param {event} событие из которого вычисляет координаты елемента и мышки
+ * @param {elem}  в данном случае елемент "меню"
  */
 
 function drags(event, elem) {
@@ -60,19 +60,17 @@ function drags(event, elem) {
 
 /**
  * Завершение drag&drop
- * @param {event} принимает событие из которого вычисляет координаты елемента и мышки
- * @param {obj} elem - сам элемент, в данном случае елемент "меню"
  */
 
-function drop(event, elem) {
+function drop() {
   isMouseDown = null;
 }
 
 // подписка на события для drag&drop меню (drag - "корешок" меню)
 drag.addEventListener('mousedown', event => {
-  dragStart(event, menu);
-  window.addEventListener('mousemove', event => { drags(event, menu); });
+  dragStart(event, mainInterface);
+  window.addEventListener('mousemove', event => { drags(event, mainInterface); });
   window.addEventListener('mouseup', event => {
     event.preventDefault();
-    drop(event, menu); });
+    drop(event, mainInterface); });
 });

@@ -7,7 +7,6 @@ let checkImage = null;
  * @param {file} сразу первый эллемент масиива, так как мы только одну картинку отправляем в интерфейс приложения, файл полученный из e.target.files[0]
  */
 function PostPic(file) {
-  console.log(file);
   const data = new FormData();
   data.append('title', file.name);
   data.append('image', file);
@@ -16,11 +15,10 @@ function PostPic(file) {
 
   xhr.addEventListener('loadstart', () => loader.style.display = '');
   xhr.addEventListener('load', () => {
-    loader.style.display = 'none';
+    hideElement(loader)
     pictureOn(file);
     hideElement(error);
     modeShare.setAttribute('data-state', 'selected');
-    console.log(xhr.responseText);
   });
 
   xhr.open('post', 'https://neto-api.herokuapp.com/pic');
@@ -80,7 +78,14 @@ function pictureOn(file) {
   currentImage.src = URL.createObjectURL(file);
   currentImage.addEventListener('load', e => {
     URL.revokeObjectURL(e.target.src);
-    createCanvas(currentImage)
+    // document.querySelector('.menu__url').value = window.location.href;
+    createCanvas(currentImage);
+
+    commentsForm.style.width = `${currentImage.width}px`;
+    commentsForm.style.height = `${currentImage.height}px`;
+
+    console.log(window.location.href)
+    console.log(URL)
   });
 }
 

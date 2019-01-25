@@ -4,7 +4,6 @@ let nodeCanvas;
 let ctx;
 
 let curves = [];
-let undone = [];
 let drawing = false;
 let needsRepaint = false;
 let color = "#6cbe47";
@@ -24,10 +23,10 @@ function smoothCurveBetween(p1, p2) {
 
 // установка цвета линии по клику на выбранный цвет
 
-let menu__color = document.querySelectorAll("input.menu__color");
 
-for (colors of menu__color) {
+for (colors of menuColor) {
   colors.addEventListener("click", (e) => {
+    ctx.closePath();
     switch (e.target.value) {
       case "red":
         color = "#ea5d56";
@@ -48,12 +47,14 @@ for (colors of menu__color) {
   });
 }
 
-function smoothCurve(points) {
+
+
+function smoothCurve(points, fill = color) {
   ctx.beginPath();
   ctx.lineWidth = BRUSH_RADIUS;
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
-  ctx.strokeStyle = color;
+  ctx.strokeStyle = fill;
 
   ctx.moveTo(...points[0]);
 
@@ -62,7 +63,7 @@ function smoothCurve(points) {
   }
 
   ctx.stroke();
-  // ctx.closePath();
+  ctx.closePath();
 }
 
 function makePoint(x, y) {
@@ -86,12 +87,10 @@ modeDraw.addEventListener("click", () => {
 
   nodeCanvas.addEventListener("mouseup", (evt) => {
     drawing = false;
-    ctx.closePath();
   });
 
   nodeCanvas.addEventListener("mouseleave", (evt) => {
     drawing = false;
-    ctx.closePath();
   });
 
   nodeCanvas.addEventListener("mousemove", (evt) => {

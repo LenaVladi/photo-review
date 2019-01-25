@@ -8,15 +8,16 @@ const menu = document.querySelector('.menu'),
       modeDraw = document.querySelector('.mode.draw'),
       modeShare = document.querySelector('.mode.share'),
       toolsComments = document.querySelector('.comments-tools'),
-      toolsDraw = document.querySelector('.draw-tools'),
       toolsShare = document.querySelector('.share-tools'),
       currentImage = document.querySelector('.current-image'),
       imageWrap = document.querySelector('.current-image-wrap'),
       error = document.querySelector('.error'),
       errorMessage = document.querySelector('.error__message'),
       loader = document.querySelector('.image-loader'),
-      commentsFofm = document.querySelector('.comments__form'),
-      wrapApp = document.querySelector('.wrap.app');
+      commentsForm = document.querySelector('.comments__form'),
+      wrapApp = document.querySelector('.wrap.app'),
+      menuColor = document.querySelectorAll("input.menu__color");
+
 
 // --------------------- Универсальные функции показа/скрытия элемента ------------------------- //
 
@@ -33,7 +34,7 @@ const hideElement = function (elem) {
 function DefaultInterface() {
   menu.dataset.state = 'initial';
   currentImage.src = '';
-  hideElement(commentsFofm);
+  hideElement(commentsForm);
 }
 
 DefaultInterface();
@@ -61,7 +62,7 @@ function createInput() {
   label.style.height = '6.3rem';
 
   label.appendChild(input);
-  modeNew.appendChild(label);
+  mode.querySelector('.now').appendChild(label);
 }
 
 createInput();
