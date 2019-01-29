@@ -70,7 +70,7 @@ function makePoint(x, y) {
   return [x, y];
 };
 
-function draw() {
+function createCanvas() {
   canvas = document.createElement('canvas');
   ctx = canvas.getContext('2d');
   canvas.width = image.width;
@@ -79,6 +79,10 @@ function draw() {
   canvas.style.left = `${image.offsetLeft}px`;
   canvas.classList.add('canvas');
   imageWrap.appendChild(canvas);
+}
+
+function draw() {
+  createCanvas();
 
   // default color
   ctx.fillStyle = "#6cbe47";

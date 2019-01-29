@@ -8,6 +8,8 @@ const error = document.querySelector('.error');
 const errorMessage = error.querySelector('.error__message');
 const mode = document.querySelectorAll('.menu__item.mode');
 const commentForm = document.querySelector('.comments__form');
+const shareUrl = document.querySelector('.menu__url');
+const menuToggle = document.querySelector('.menu__toggle-bg')
 let socket;
 let commentForms;
 let canvas, ctx;
@@ -75,6 +77,10 @@ mode.forEach(item => {
 
     if (item.classList.contains('draw')) {
       draw();
+    }
+
+    if (item.classList.contains('comments')) {
+      commented(image.dataset.id);
     }
   });
 });
@@ -178,15 +184,26 @@ function showImage(res, element) {
     showMenu(element);
 
     sessionStorage.setItem('UploadImage', image.src);
+    sessionStorage.setItem('ImageId', image.dataset.id);
 
     commentForm.style.width = `${image.width}px`;
     commentForm.style.height = `${image.height}px`;
+
+    shareUrl.value = window.location.href;
   });
 }
 
 window.addEventListener('load', function () {
   if(sessionStorage.getItem('UploadImage')) {
     image.src = sessionStorage.getItem('UploadImage');
+
+    if (image.onload && !canvas) {
+      createCanvas();
+    }
+  }
+
+  if(sessionStorage.getItem('ImageId')) {
+    image.dataset.id = sessionStorage.getItem('ImageId');
   }
 });
 
