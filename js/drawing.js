@@ -75,6 +75,9 @@ function draw() {
   ctx = canvas.getContext('2d');
   canvas.width = image.width;
   canvas.height = image.height;
+  canvas.style.top = `${image.offsetTop}px`;
+  canvas.style.left = `${image.offsetLeft}px`;
+  canvas.classList.add('canvas');
   imageWrap.appendChild(canvas);
 
   // default color
