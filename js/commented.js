@@ -1,29 +1,50 @@
+commentForm.addEventListener('click', function (e) {
+  if (e.target.classList.contains('.comments__submit')) {
+    e.preventDefault();
+
+
+  }
+});
+
 function commented(id) {
-  console.log(id);
   showElement(commentForm);
 
-  var socket = new WebSocket(`wss://neto-api.herokuapp.com/pic/${id}`);
+}
 
-  socket.onopen = function() {
-    console.warn("Соединение установлено.");
-  };
 
-  socket.onclose = function(event) {
-    if (event.wasClean) {
-      console.warn('Соединение закрыто чисто');
-    } else {
-      console.error('Обрыв соединения');
-    }
-    console.error('Код: ' + event.code + ' причина: ' + event.reason);
+function setFormComment(massage, left, top) {
+  const formComment = {
+    message: massage || '',
+    left: left || '',
+    top: top || ''
   };
+  return formComment;
+}
 
-  socket.onmessage = function(event) {
-    console.warn("Получены данные " + event.data);
-  };
+function postCommentsInfo(data, id) {
+  //message — текст комментария, строка.
+  //left — расстояние по горизонтальной оси X от левого края изображения, число;
+  //top — расстояние по вертикальной оси Y от верхнего края изображения, число.
 
-  socket.onerror = function(error) {
-    console.error("Ошибка " + error.message);
-  };
+  fetch(`${REST_API}/${id}/comments`, {
+    body: data,
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    method: 'POST'
+  })
+    .then(res => {
+      if (200 <= res.status && res.status < 300) {
+        return res;
+      }
+      throw new Error(response.statusText);
+    })
+    .then(res => res.json())
+    .then(res => {
+
+    })
+    .catch(er => console.warn(er));
 }
 
 menuToggle.addEventListener('click', function (el) {
@@ -33,4 +54,10 @@ menuToggle.addEventListener('click', function (el) {
     showElement(commentForm);
   }
 });
+
+image.addEventListener('click', (e) => {
+  if (mainInterface.querySelector('.comments').dataset.state === 'selected') {
+    console.log(setFormComment('', e.offsetX, e.offsetY))
+  }
+})
 

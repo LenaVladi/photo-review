@@ -223,6 +223,10 @@ body {
   z-index: 2;
 }
 
+.canvas.disabled {
+  pointer-events: none;
+}
+
 .draw-tools {
   padding-right: 0;
   font-size: 0;

@@ -1,8 +1,11 @@
 const BRUSH_RADIUS = 4;
 
 let curves = [];
+let curves2 = [];
+let curCurve = 0;
 let drawing = false;
 let needsRepaint = false;
+let color = "#6cbe47";
 
 // curves and figures
 function circle(point) {
@@ -81,12 +84,30 @@ function createCanvas() {
   imageWrap.appendChild(canvas);
 }
 
+function newLine() {
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.closePath();
+
+  curves2[curCurve] = {
+    points: curves.splice(),
+    color: ctx.fillStyle
+  };
+
+  curves = [];
+  ctx.beginPath();
+  curCurve++;
+}
+
 function draw() {
-  createCanvas();
+  const canvasNone = document.querySelector('.canvas');
+  if (!canvasNone) {
+    createCanvas();
+  }
 
   // default color
-  ctx.fillStyle = "#6cbe47";
-  ctx.strokeStyle = "#6cbe47";
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
 
   canvas.addEventListener("mousedown", (evt) => {
     drawing = true;
@@ -101,12 +122,14 @@ function draw() {
 
   canvas.addEventListener("mouseup", (evt) => {
     drawing = false;
-    ctx.beginPath();
+    // ctx.beginPath();
+    newLine();
   });
 
   canvas.addEventListener("mouseleave", (evt) => {
     drawing = false;
-    ctx.beginPath();
+    // ctx.beginPath();
+    newLine();
   });
 
   canvas.addEventListener("mousemove", (evt) => {
@@ -141,6 +164,10 @@ function repaint() {
       // the body is compraised of lines
       smoothCurve(curve);
     });
+
+  curves2.forEach(e => {
+    cir
+  })
 }
 
 function tick() {

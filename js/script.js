@@ -1,21 +1,23 @@
-const mainInterface = document.querySelector('.menu');
-const menuItem = mainInterface.querySelectorAll('.menu__item');
-const image = document.querySelector('.current-image');
-const imageWrap = document.querySelector('.current-image-wrap');
-const app = document.querySelector('.app');
-const loader = document.querySelector('.image-loader');
-const error = document.querySelector('.error');
-const errorMessage = error.querySelector('.error__message');
-const mode = document.querySelectorAll('.menu__item.mode');
-const commentForm = document.querySelector('.comments__form');
-const shareUrl = document.querySelector('.menu__url');
-const menuToggle = document.querySelector('.menu__toggle-bg')
-let socket;
-let commentForms;
-let canvas, ctx;
+const mainInterface = document.querySelector('.menu'),
+      menuItem = mainInterface.querySelectorAll('.menu__item'),
+      image = document.querySelector('.current-image'),
+      imageWrap = document.querySelector('.current-image-wrap'),
+      app = document.querySelector('.app'),
+      loader = document.querySelector('.image-loader'),
+      error = document.querySelector('.error'),
+      errorMessage = error.querySelector('.error__message'),
+      mode = document.querySelectorAll('.menu__item.mode'),
+      commentForm = document.querySelector('.comments__form'),
+      shareUrl = document.querySelector('.menu__url'),
+      menuToggle = document.querySelector('.menu__toggle-bg'),
+      REST_API = 'https://neto-api.herokuapp.com';
+
+let socket,
+    commentForms,
+    canvas,
+    ctx;
 
 // показ / скрытие элементов
-
 function showElement(el) {
   el.style.display = '';
 }
@@ -25,7 +27,6 @@ function hideElement(el) {
 }
 
 // стартовое состояние программы
-
 function getDefaultInterface() {
   mainInterface.dataset.state = 'initial';
   image.src = '';
@@ -63,6 +64,18 @@ createInput();
 
 // ---------------- menu ------------------ //
 
+function canvasDisabled(boolean) {
+  const canvas = document.querySelector('.canvas');
+
+  if (!canvas) { return; }
+
+  if (boolean) {
+    canvas.classList.add('disabled')
+  } else {
+    canvas.classList.remove('disabled')
+  }
+}
+
 function showMenu(elem) {
   mainInterface.dataset.state = 'selected';
   menuItem.forEach(item => item.dataset.state = '');
@@ -77,10 +90,12 @@ mode.forEach(item => {
 
     if (item.classList.contains('draw')) {
       draw();
+      canvasDisabled(false)
     }
 
     if (item.classList.contains('comments')) {
       commented(image.dataset.id);
+      canvasDisabled(true)
     }
   });
 });
@@ -92,7 +107,6 @@ document.querySelector('.menu__item.burger').addEventListener('click', event => 
 });
 
 // изображение
-
 let checkImage = null;
 
 document.querySelector('#file').addEventListener('change', getImageFromInput);
@@ -140,13 +154,16 @@ function updateFilesInfo(file) {
     showElement(error);
   }
 
-  connectionImage(file);
+  postImageInfo(file);
 }
 
-function connectionImage(file) {
-  fetch('https://neto-api.herokuapp.com/pic', {
-    body: getFormData(file),
+function postImageInfo(file) {
+  fetch(`${REST_API}/pic`, {
+    body: setFormData(file),
     credentials: 'same-origin',
+    // headers: {
+    //   'Content-Type': 'multipart/form-data'
+    // },
     method: 'POST'
   })
     .then(res => {
@@ -159,119 +176,149 @@ function connectionImage(file) {
     .then(res => {
       showImage(res, 'share');
     })
-    .catch(er => console.log(er));
+    .catch(er => {
+      console.warn(er)
+      errorMessage.textContent = 'Извините, сервер недоступен :(';
+      hideElement(loader);
+      showElement(error);
+    });
 }
 
-function getFormData(file) {
+function getImageInfo(id) {
+  fetch(`${REST_API}/pic${id}`, {
+    credentials: 'same-origin',
+    method: 'GET'
+  })
+    .then(res => {
+      if (200 <= res.status && res.status < 300) {
+        return res;
+      }
+      throw new Error(response.statusText);
+    })
+    .then(res => res.json())
+    .then(res => {
+      showImage(res, 'share');
+      console.log(res)
+    })
+    .catch(er => {
+      console.warn(er)
+      errorMessage.textContent = 'Извините, сервер недоступен :(';
+      hideElement(loader);
+      showElement(error);
+    });
+}
+
+function setFormData(file) {
   const formData = new FormData();
   formData.append('title', file.name);
   formData.append('image', file);
   return formData;
 }
 
-function showImage(res, element) {
-  // res.id
-  // res.timestamp
-  // res.url
-  // res.title
+function createUrl() {
+  shareUrl.value = window.location.href;
+}
 
+function showImage(res, element) {
   image.src = res.url;
   image.dataset.id = res.id;
-  // createUrl(image.dataset.id);
+  image.dataset.timestamp = res.timestamp;
   image.classList.remove('visually-hidden');
+
   image.addEventListener('load', event => {
     hideElement(loader);
     showMenu(element);
 
-    sessionStorage.setItem('UploadImage', image.src);
-    sessionStorage.setItem('ImageId', image.dataset.id);
+    let imageInfo = {
+      imageSrc: image.src,
+      imageId: image.dataset.id,
+      imageTimestamp: image.dataset.timestamp
+    }
+
+    sessionStorage.setItem('ImageInfo', JSON.stringify(imageInfo));
 
     commentForm.style.width = `${image.width}px`;
     commentForm.style.height = `${image.height}px`;
 
-    shareUrl.value = window.location.href;
+    createUrl();
+    socketInit();
   });
 }
 
 window.addEventListener('load', function () {
-  if(sessionStorage.getItem('UploadImage')) {
-    image.src = sessionStorage.getItem('UploadImage');
+  let ImageInfo;
 
-    if (image.onload && !canvas) {
-      createCanvas();
-    }
-  }
+  if(sessionStorage.getItem('ImageInfo')) {
+    ImageInfo = JSON.parse(sessionStorage.getItem('ImageInfo'))
 
-  if(sessionStorage.getItem('ImageId')) {
-    image.dataset.id = sessionStorage.getItem('ImageId');
+    image.src = ImageInfo.imageSrc;
+    image.dataset.id = ImageInfo.imageId;
+    image.timestamp = ImageInfo.imageTimestamp;
+
+    createCanvas();
+    createUrl();
+    socketInit();
+    getImageInfo(image.dataset.id);
   }
 });
 
-// ================================================= //
+// ======================= наброски ========================== //
 
-// const BRUSH_RADIUS = 4;
-// let drawing = false;
-// let color = "#6cbe47";
-//
-// function getColor(el) {
-//   switch (el) {
-//     case "red":
-//       ctx.fillStyle = "#ea5d56";
-//       break;
-//     case "yellow":
-//       ctx.fillStyle = "#f3d135";
-//       break;
-//     case "green":
-//       ctx.fillStyle = "#6cbe47";
-//       break;
-//     case "blue":
-//       ctx.fillStyle = "#53a7f5";
-//       break;
-//     case "purple":
-//       ctx.fillStyle = "#b36ade";
-//       break;
-//   }
-// }
-//
-// for (colors of menuColor) {
-//   colors.addEventListener("click", (e) => {
-//     getColor(e.target.value);
-//   });
-// }
-//
-// function makePoint(x, y) {
-//   return [x, y];
-// };
-//
-// canvas.addEventListener('mousdown', function (evt) {
-//   drawing = true;
-//   ctx.beginPath();
-// }
-// canvas.addEventListener('mousup', function (evt) {
-//   drawing = false;
-// }
-//
-// canvas.addEventListener('mousmove', function (evt) {
-//   if (drawing) {
-//     ctx.lineWidth = BRUSH_RADIUS * 2;
-//     ctx.lineTo(evt.offsetX, evt.offsetY);
-//     ctx.stroke();
-//
-//     ctx.beginPath();
-//     ctx.arc(evt.offsetX, evt.offsetY, BRUSH_RADIUS / 2, 0, 2 * Math.PI);
-//     ctx.fill();
-//
-//     ctx.beginPath();
-//     ctx.moveTo(evt.offsetX, evt.offsetY);
-//   }
-// })
-//
-// document.addEventListener('keydown', function (evt) {
-//   if (evt.keyCode === 90 && evt.keyCode === 91) {
-//
-//   }
-// })
+// вот тут еще бы хотелось предусмотреть передачу колбека.. а если точнее передачу каких-то действий в случае успеха
+function connectionPostApi(data, type) {
+  let request = `/pic`,
+    id = image.dataset.id;
+  const REST_API = 'https://neto-api.herokuapp.com';
+  const headers = {
+    comment: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    pic: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }
 
+  // added comments
+  if (type === 'comments') {
+    request += `/${id}/${type}`;
+  }
+
+  fetch(`${REST_API}${request}`, {
+    body: data,
+    credentials: 'same-origin',
+    headers: type === 'pic' ? headers.pic : headers.comment,
+    method: 'POST'
+  })
+    .then(res => {
+      if (200 <= res.status && res.status < 300) {
+        return res;
+      }
+      throw new Error(response.statusText);
+    })
+    .then(res => res.json())
+    .then(res => {
+      // вот здесь нужно как-то обработать событие в случае успеха. callback...
+    })
+    .catch(er => console.log(er));
+}
+
+function connectionGetApi() {
+  fetch(`${REST_API}/pic/${id}`, {
+    credentials: 'same-origin',
+    method: 'GET'
+  })
+    .then(res => {
+      if (200 <= res.status && res.status < 300) {
+        return res;
+      }
+      throw new Error(response.statusText);
+    })
+    .then(res => res.json())
+    .then(res => {
+      // и здесь нужно как-то обработать событие в случае успеха. callback...
+    })
+    .catch(er => console.log(er));
+}
 
 
 
